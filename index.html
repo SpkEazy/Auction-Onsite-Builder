@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AuctionInc Generator</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/docx@8.3.0/build/index.umd.js"></script>
+
+  <style>
+    .preview-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .preview-box {
+      background: #f4f4f4;
+      border: 2px solid #ccc;
+      padding: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <form id="input-form" spellcheck="true" lang="en-GB">
+    <label>Headline: <textarea id="headline" rows="1" spellcheck="true">Lux 6-Bed Penthouse</textarea></label><br>
+    <label>Subheadline: <textarea id="subheadline" rows="1" spellcheck="true">Lux 6-Bed</textarea></label><br>
+    <label>Subheadline 2: <textarea id="subheadline2" rows="1" spellcheck="true">Penthouse</textarea></label><br>
+    <label>City: <textarea id="city" rows="1" spellcheck="true">Cape Town</textarea></label><br>
+    <label>Suburb: <textarea id="suburb" rows="1" spellcheck="true">Sandton</textarea></label><br>
+    <label>Tagline 1: <textarea id="tag1" rows="1" spellcheck="true">Breathtaking</textarea></label><br>
+    <label>Tagline 2: <textarea id="tag2" rows="1" spellcheck="true">Views</textarea></label><br>
+    <label>Select Date: <input type="date" id="date-picker" value="2025-06-14"></label><br>
+    <label>Select Time:
+      <select id="time-picker">
+        <option value="09:00">09:00</option>
+        <option value="09:30">09:30</option>
+        <option value="10:00">10:00</option>
+        <option value="10:30" selected>10:30</option>
+        <option value="11:00">11:00</option>
+        <option value="11:30">11:30</option>
+        <option value="12:00">12:00</option>
+        <option value="12:30">12:30</option>
+        <option value="14:00">14:00</option>
+        <option value="14:30">14:30</option>
+        <option value="18:00">18:00</option>
+        <option value="18:30">18:30</option>
+      </select>
+    </label><br>
+    <label>Address: <textarea id="address" rows="1" spellcheck="true">160 2nd Avenue, Edenvale</textarea></label><br>
+    <label>Feature 1: <textarea id="feat1" rows="1" spellcheck="true">6 Bedrooms + 4 Bathrooms (main en-suite)</textarea></label><br>
+    <label>Feature 2: <textarea id="feat2" rows="1" spellcheck="true">Home Office | Enclosed Entertainment Patio</textarea></label><br>
+    <label>Feature 3: <textarea id="feat3" rows="1" spellcheck="true">Expansive Garden, Sparkling Pool + 2 Garages</textarea></label><br>
+    <label>Upload Property Image: <input type="file" id="property-img"></label><br>
+
+  </form>
+
+<button onclick="downloadWordDoc()">Download Word Summary</button>
+
+  <h2>Previews</h2>
+  <div class="preview-panel">
+    <div class="preview-block">
+      <h3>Social Design</h3>
+      <button onclick="generateAndDownload('social')">Download Social</button>
+      <div id="social-preview" class="preview-box"></div>
+    </div>
+
+    <div class="preview-block">
+      <h3>Newsletter Design</h3>
+      <button onclick="generateAndDownload('newsletter')">Download Newsletter</button>
+      <div id="newsletter-preview" class="preview-box"></div>
+    </div>
+
+    <div class="preview-block">
+      <h3>Flyer Design</h3>
+      <button onclick="generateAndDownload('flyer')">Download Flyer</button>
+      <div id="flyer-preview" class="preview-box"></div>
+    </div>
+  </div>
+
+
+  <script src="js/builder.js"></script>
+</body>
+</html>
