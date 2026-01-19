@@ -476,14 +476,25 @@ async function generateAndDownload(template) {
 // Word Summary (keep working)
 // =====================
 async function downloadWordDoc() {
-  const { Document, Packer, Paragraph, TextRun } = window.docx;
+  // --- SAFETY: ensure docx is loaded ---
+  if (!window.docx) {
+    alert("❌ Word export library (docx) not loaded.");
+    return;
+  }
 
+  const { Document, Packer, Paragraph, TextRun } = window.docx;
   const { broker } = getSelectedBroker();
 
-  const rawDate = document.getElementById("date-picker")?.value || '';
-  const rawTime = document.getElementById("time-picker")?.value || '';
-  const fullDateObj = new Date(`${rawDate}T${rawTime}`);
+  // --- SAFETY: ensure valid date/time ---
+  let rawDate = document.getElementById("date-picker")?.value || "";
+  const rawTime = document.getElementById("time-picker")?.value || "00:00";
 
+  if (!rawDate) {
+    const d = new Date();
+    rawDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+
+  const fullDateObj = new Date(`${rawDate}T${rawTime}`);
   const formattedDate = fullDateObj.toLocaleDateString('en-ZA', {
     weekday: 'long',
     day: 'numeric',
@@ -511,21 +522,22 @@ async function downloadWordDoc() {
       spacing: { after: 200 },
       children: [
         new TextRun({ text: label + ": ", bold: true, size: 28, font: "Roboto" }),
-        new TextRun({ text: value, size: 24, font: "Roboto" })
+        new TextRun({ text: String(value), size: 24, font: "Roboto" })
       ]
     })
   );
 
   const doc = new Document({ sections: [{ children: paragraphs }] });
-
   const blob = await Packer.toBlob(doc);
-  const url = URL.createObjectURL(blob);
 
+  // --- CRITICAL FIX: anchor must be in DOM ---
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = "AuctionInc_Property_Summary.docx";
+  document.body.appendChild(a);
   a.click();
-
+  a.remove();
   URL.revokeObjectURL(url);
 }
 
@@ -586,6 +598,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setDatePickerToToday();
   enableSymbolShortcuts();
 });
+
+
 
 
 
