@@ -9,6 +9,36 @@ const SOCIAL_RED_TAG_NUDGE_Y = 0;  // + down, - up
 // Optional: if you want the tag slightly more/less transparent
 const SOCIAL_RED_TAG_ALPHA = 0.96;
 
+// ✅ Broker directory convention (optional):
+// assets/brokers/<brokerId>/broker-photo.png
+// assets/brokers/<brokerId>/broker-phone.png
+const BROKERS = {
+  "alex-krause": { name: "Alex Krause", phone: "078 549 2029", email: "alex@auctioninc.co.za" },
+  "gary-brower": { name: "Gary Brower", phone: "082 352 5552", email: "garyb@auctioninc.co.za" },
+  "bongane-khumalo": { name: "Bongane Khumalo", phone: "073 785 5100", email: "bongane@auctioninc.co.za" },
+  "cliff-matshatsha": { name: "Cliff Matshatsha", phone: "082 099 8692", email: "cliff@auctioninc.co.za" },
+  "daniel-wachenheimer": { name: "Daniel Wachenheimer", phone: "082 740 2856", email: "daniel@auctioninc.co.za" },
+  "dean-doucha": { name: "Dean Doucha", phone: "082 374 5565", email: "dean@auctioninc.co.za" },
+  "elki-medalie": { name: "Elki Medalie", phone: "083 764 5370", email: "elki@auctioninc.co.za" },
+  "doron-sacks": { name: "Doron Sacks", phone: "082 550 7081", email: "doron@auctioninc.co.za" },
+  "george-merricks": { name: "George Merricks", phone: "082 859 9303", email: "george@auctioninc.co.za" },
+  "gerhard-venter": { name: "Gerhard Venter", phone: "076 905 5519", email: "gerhard@auctioninc.co.za" },
+  "jenny-pillay": { name: "Jenny Pillay", phone: "063 959 2260", email: "jenny@auctioninc.co.za" },
+  "jessica-beyers-lahner": { name: "Jessica Beyers-Lahner", phone: "072 576 0973", email: "jessica@auctioninc.co.za" },
+  "jodi-bedil": { name: "Jodi Bedil", phone: "076 637 1273", email: "jodib@auctioninc.co.za" },
+  "jodi-frankel": { name: "Jodi Frankel", phone: "082 441 8409", email: "jodif@auctioninc.co.za" },
+  "keith-nkosi": { name: "Keith Nkosi", phone: "081 828 1817", email: "keith@auctioninc.co.za" },
+  "luanda-tlhotlhalemaje": { name: "Luanda Tlhotlhalemaje", phone: "071 904 4061", email: "luanda@skyriseproperties.co.za" },
+  "nic-brett": { name: "Nic Brett", phone: "078 330 7523", email: "nic@auctioninc.co.za" },
+  "reece-louw": { name: "Reece Louw", phone: "076 393 1131", email: "reece@auctioninc.co.za" },
+  "reshma-sookran": { name: "Reshma Sookran", phone: "071 876 6524", email: "reshma@auctioninc.co.za" },
+  "shlomo-hecht": { name: "Shlomo Hecht", phone: "073 791 7967", email: "shlomo@auctioninc.co.za" },
+  "sim-mthembu": { name: "Sim Mthembu", phone: "063 829 7431", email: "simphiwe@auctioninc.co.za" },
+  "stuart-holliman": { name: "Stuart Holliman", phone: "067 373 9239", email: "stuart@auctioninc.co.za" },
+  "thabani-ncube": { name: "Thabani Ncube", phone: "071 624 2899", email: "thabani@auctioninc.co.za" },
+  "yoni-dadon": { name: "Yoni Dadon", phone: "061 822 6128", email: "yoni@auctioninc.co.za" }
+};
+
 // =====================
 // Helpers
 // =====================
@@ -52,6 +82,55 @@ function waitForRenderFrames(frames = 3) {
 // ✅ Always builds correct URL for GitHub Pages + local
 function absUrl(relativePath) {
   return new URL(relativePath, window.location.href).toString();
+}
+
+// =====================
+// Broker helpers (NEW)
+// =====================
+function getSelectedBroker() {
+  const brokerId = document.getElementById("broker")?.value || "alex-krause";
+  const broker = BROKERS[brokerId] || BROKERS["alex-krause"];
+  return { brokerId, broker };
+}
+
+function setImgWithFallback(imgEl, primarySrc, fallbackSrc) {
+  if (!imgEl) return;
+  imgEl.onerror = () => {
+    imgEl.onerror = null;
+    imgEl.src = fallbackSrc;
+  };
+  imgEl.src = primarySrc;
+}
+
+function applyBrokerToTemplate(target, templatePath, brokerId, broker) {
+  // NEWSLETTER: swap broker photo + contact box
+  if (templatePath.includes("newsletter")) {
+    const contact = target.querySelector(".textbox_Contact_Details");
+    if (contact) {
+      contact.innerHTML = `
+        <span>${(broker.name || "").toUpperCase()}</span>
+        <span>${broker.phone || ""}</span>
+        <span>${broker.email || ""}</span>
+      `;
+    }
+
+    const brokerPhoto = target.querySelector(".overlay-image_Broker_Photo");
+    setImgWithFallback(
+      brokerPhoto,
+      absUrl(`assets/brokers/${brokerId}/broker-photo.png`),
+      absUrl("assets/broker-photo.png")
+    );
+  }
+
+  // FLYER: swap broker-phone image
+  if (templatePath.includes("flyer")) {
+    const brokerPhone = target.querySelector(".overlay-image_broker-phone");
+    setImgWithFallback(
+      brokerPhone,
+      absUrl(`assets/brokers/${brokerId}/broker-phone.png`),
+      absUrl("assets/broker-phone.png")
+    );
+  }
 }
 
 // =====================
@@ -145,7 +224,14 @@ function runFontResize(container, templateId) {
 // Collect form data (global)
 // =====================
 async function collectFormData() {
+  const { brokerId, broker } = getSelectedBroker();
+
   return {
+    brokerId,
+    brokerName: broker.name || "",
+    brokerPhone: broker.phone || "",
+    brokerEmail: broker.email || "",
+
     headline: document.getElementById('headline')?.value || '',
     subheadline: document.getElementById('subheadline')?.value || '',
     subheadline2: document.getElementById('subheadline2')?.value || '',
@@ -165,6 +251,8 @@ async function collectFormData() {
     propertyImage: await getImageDataUrl('property-img')
   };
 }
+
+
 
 // =====================
 // Canvas draws (return Promises so downloads wait correctly)
@@ -278,6 +366,15 @@ async function loadTemplate(templatePath, targetId, data) {
   if (!target) throw new Error(`Target not found: ${targetId}`);
 
   target.innerHTML = html;
+
+  // ✅ Broker swaps must happen after HTML is inserted, before image-waits/screenshot
+  applyBrokerToTemplate(
+    target,
+    templatePath,
+    data.brokerId,
+    { name: data.brokerName, phone: data.brokerPhone, email: data.brokerEmail }
+  );
+
   await waitForImagesToLoad(target);
 
   // ✅ WAIT for canvas drawing to finish
@@ -316,16 +413,17 @@ async function generateAndDownload(template) {
   try {
     const data = await collectFormData();
 
+    // ✅ newsletter exports PNG (per your template)
     const map = {
-      social: { path: 'templates/social.html', target: 'social-preview', filename: 'social.jpg' },
-      newsletter: { path: 'templates/newsletter.html', target: 'newsletter-preview', filename: 'newsletter.jpg' },
-      flyer: { path: 'templates/flyer.html', target: 'flyer-preview', filename: 'flyer.jpg' }
+      social: { path: 'templates/social.html', target: 'social-preview', filename: 'social.jpg', mime: 'image/jpeg' },
+      newsletter: { path: 'templates/newsletter.html', target: 'newsletter-preview', filename: 'newsletter.png', mime: 'image/png' },
+      flyer: { path: 'templates/flyer.html', target: 'flyer-preview', filename: 'flyer.jpg', mime: 'image/jpeg' }
     };
 
     const cfg = map[template];
     if (!cfg) throw new Error(`Unknown template: ${template}`);
 
-    const { path, target, filename } = cfg;
+    const { path, target, filename, mime } = cfg;
     const previewWrapper = document.getElementById(target);
     if (!previewWrapper) throw new Error(`Preview wrapper not found: ${target}`);
 
@@ -366,7 +464,7 @@ async function generateAndDownload(template) {
       container.style.position = 'absolute';
       container.style.opacity = 0;
       container.style.pointerEvents = 'none';
-    }, "image/jpeg", 0.92);
+    }, mime, mime === "image/jpeg" ? 0.92 : undefined);
 
   } catch (err) {
     console.error(err);
@@ -379,6 +477,8 @@ async function generateAndDownload(template) {
 // =====================
 async function downloadWordDoc() {
   const { Document, Packer, Paragraph, TextRun } = window.docx;
+
+  const { broker } = getSelectedBroker();
 
   const rawDate = document.getElementById("date-picker")?.value || '';
   const rawTime = document.getElementById("time-picker")?.value || '';
@@ -394,6 +494,7 @@ async function downloadWordDoc() {
   const fullDateTime = `${formattedDate} @ ${rawTime}`;
 
   const fields = {
+    "Broker": `${broker.name || ''} | ${broker.phone || ''} | ${broker.email || ''}`,
     "Headline": document.getElementById("headline")?.value || '',
     "City": document.getElementById("city")?.value || '',
     "Suburb": document.getElementById("suburb")?.value || '',
@@ -434,6 +535,7 @@ async function downloadWordDoc() {
 window.generateTemplate = generateTemplate;
 window.generateAndDownload = generateAndDownload;
 window.downloadWordDoc = downloadWordDoc;
+
 
 
 
