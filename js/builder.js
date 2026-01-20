@@ -5,6 +5,8 @@
 // ✅ Nudge the SOCIAL top-right red tag (in "design pixels" based on 1130-wide photo canvas system)
 const SOCIAL_RED_TAG_NUDGE_X = 30; // + right, - left (try 40–120)
 const SOCIAL_RED_TAG_NUDGE_Y = 0;  // + down, - up
+const MAX_UPLOAD_KB = 25000;                 // 25 000 KB
+const MAX_UPLOAD_BYTES = MAX_UPLOAD_KB * 1024;
 
 // Optional: if you want the tag slightly more/less transparent
 const SOCIAL_RED_TAG_ALPHA = 0.96;
@@ -142,8 +144,8 @@ function getImageDataUrl(inputId, maxW = 2200, maxH = 2200, quality = 0.9) {
     const file = input?.files?.[0];
     if (!file) return resolve('');
 
-    if (file.size > 8 * 1024 * 1024) {
-      alert("⚠️ Please upload an image under 8MB.");
+    if (file.size > MAX_UPLOAD_BYTES) {
+      alert(`⚠️ Please upload an image under ${MAX_UPLOAD_KB.toLocaleString()} KB.`);
       return resolve('');
     }
 
@@ -598,6 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setDatePickerToToday();
   enableSymbolShortcuts();
 });
+
 
 
 
